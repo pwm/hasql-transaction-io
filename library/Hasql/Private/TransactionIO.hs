@@ -35,7 +35,7 @@ import Hasql.Private.Types
 import qualified Hasql.Private.Statements as Statements
 
 newtype TransactionIO a = TransactionIO (ReaderT Transaction Session a)
-  deriving newtype (Functor, Applicative, Monad, MonadIO, MonadError QueryError, MonadUnliftIO)
+  deriving (Functor, Applicative, Monad, MonadIO, MonadError QueryError, MonadUnliftIO)
 
 data Transaction = Transaction
 

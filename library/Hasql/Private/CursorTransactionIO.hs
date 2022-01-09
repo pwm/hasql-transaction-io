@@ -40,7 +40,7 @@ data Cursor s a = Cursor
 
 newtype CursorTransactionIO s a = CursorTransactionIO
   ( StateT Int (ResourceT TransactionIO) a )
-  deriving newtype (Functor, Applicative, Monad, MonadIO, MonadResource, MonadState Int)
+  deriving (Functor, Applicative, Monad, MonadIO, MonadResource, MonadState Int)
 
 run :: (forall s. CursorTransactionIO s a) -> TransactionIO a
 run (CursorTransactionIO ctxio) = runResourceT . flip evalStateT 0 $ ctxio
