@@ -22,6 +22,7 @@ import Control.Monad.Error.Class
 import Control.Monad.IO.Unlift
 
 -- resourcet
+import Data.Acquire
 import Control.Monad.Trans.Resource
 
 -- hasql
@@ -49,7 +50,8 @@ instance Monoid a => Monoid (TransactionIO a) where
 run :: TransactionIO a -> IsolationLevel -> Mode -> Deferrable -> Bool -> Session a
 run (TransactionIO txio) isolation mode deferrable preparable = runResourceT $ do
   UnliftIO runInIO <- lift askUnliftIO
-  (_, tx) <- allocate (runInIO $ startTransaction isolation mode deferrable preparable) (runInIO . commitTransaction preparable)
+  let acq = mkAcquireType (runInIO $ startTransaction isolation mode deferrable preparable) ((runInIO .) . endTransaction preparable)
+  (_, tx) <- allocateAcquire acq
   lift $ runReaderT txio tx
 
 {-# INLINE sql #-}
@@ -63,18 +65,22 @@ statement params stmt = TransactionIO . lift $ Session.statement params stmt
 {-# INLINE startTransaction #-}
 startTransaction :: IsolationLevel -> Mode -> Deferrable -> Bool -> Session Transaction
 startTransaction isolation mode deferrable prepare = do
-  liftIO (putStrLn "starting transaction")
   Session.statement () (Statements.startTransaction isolation mode deferrable prepare)
   pure Transaction
+
+{-# INLINE endTransaction #-}
+endTransaction :: Bool -> Transaction -> ReleaseType -> Session ()
+endTransaction prepare tx = \case
+  ReleaseEarly -> commitTransaction prepare tx
+  ReleaseNormal -> commitTransaction prepare tx
+  ReleaseException -> rollbackTransaction prepare tx
 
 {-# INLINE commitTransaction #-}
 commitTransaction :: Bool -> Transaction -> Session ()
 commitTransaction prepare Transaction = do
-  liftIO (putStrLn "committing transaction")
   Session.statement () (Statements.commitTransaction prepare)
 
 {-# INLINE rollbackTransaction #-}
 rollbackTransaction :: Bool -> Transaction -> Session ()
 rollbackTransaction prepare Transaction = do
-  liftIO (putStrLn "rolling back transaction")
   Session.statement () (Statements.rollbackTransaction prepare)
