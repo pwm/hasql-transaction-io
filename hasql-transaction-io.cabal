@@ -33,7 +33,6 @@ library
 
   default-extensions:
     DeriveFunctor
-    DerivingStrategies
     FlexibleContexts
     GeneralizedNewtypeDeriving
     LambdaCase
