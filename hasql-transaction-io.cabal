@@ -9,6 +9,7 @@ bug-reports:
 license:       MIT
 license-file:  LICENSE
 author:        Andre Marianiello
+maintainer:    andremarianiello@users.noreply.github.com
 copyright:     (c) 2022, Andre Marianiello
 category:      Database, PostgreSQL, Hasql
 
@@ -41,7 +42,7 @@ library
 
   other-extensions:   OverloadedStrings
   build-depends:
-    , base                     >=4.14
+    , base                     >=4.14 && <4.17
     , bytestring               >=0.10
     , bytestring-tree-builder  ^>=0.2
     , hasql                    ^>=1.5
