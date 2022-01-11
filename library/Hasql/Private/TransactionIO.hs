@@ -35,6 +35,7 @@ import Hasql.Private.Session.UnliftIO
 import Hasql.Private.Types
 import qualified Hasql.Private.Statements as Statements
 
+-- | A mixture of Hasql statements and arbitrary IO that is all performed during a single transaction
 newtype TransactionIO a = TransactionIO (ReaderT Transaction Session a)
   deriving (Functor, Applicative, Monad, MonadIO, MonadError QueryError, MonadUnliftIO)
 
@@ -46,7 +47,6 @@ instance Semigroup a => Semigroup (TransactionIO a) where
 instance Monoid a => Monoid (TransactionIO a) where
   mempty = pure mempty
 
-{-# INLINE run #-}
 run :: TransactionIO a -> IsolationLevel -> Mode -> Deferrable -> Bool -> Session a
 run (TransactionIO txio) isolation mode deferrable preparable = runResourceT $ do
   UnliftIO runInIO <- lift askUnliftIO
@@ -54,33 +54,29 @@ run (TransactionIO txio) isolation mode deferrable preparable = runResourceT $ d
   (_, tx) <- allocateAcquire acq
   lift $ runReaderT txio tx
 
-{-# INLINE sql #-}
+-- | Like `Session.sql` but in a `TransactionIO`. It should not attempt any statements that cannot be safely run inside a transaction.
 sql :: ByteString -> TransactionIO ()
 sql = TransactionIO . lift . Session.sql
 
-{-# INLINE statement #-}
+-- | Like `Session.statement` but in a `TransactionIO`. It should not attempt any statements that cannot be safely run inside a transaction.
 statement :: params -> Statement params result -> TransactionIO result
 statement params stmt = TransactionIO . lift $ Session.statement params stmt
 
-{-# INLINE startTransaction #-}
 startTransaction :: IsolationLevel -> Mode -> Deferrable -> Bool -> Session Transaction
 startTransaction isolation mode deferrable prepare = do
   Session.statement () (Statements.startTransaction isolation mode deferrable prepare)
   pure Transaction
 
-{-# INLINE endTransaction #-}
 endTransaction :: Bool -> Transaction -> ReleaseType -> Session ()
 endTransaction prepare tx = \case
   ReleaseEarly -> commitTransaction prepare tx
   ReleaseNormal -> commitTransaction prepare tx
   ReleaseException -> rollbackTransaction prepare tx
 
-{-# INLINE commitTransaction #-}
 commitTransaction :: Bool -> Transaction -> Session ()
 commitTransaction prepare Transaction = do
   Session.statement () (Statements.commitTransaction prepare)
 
-{-# INLINE rollbackTransaction #-}
 rollbackTransaction :: Bool -> Transaction -> Session ()
 rollbackTransaction prepare Transaction = do
   Session.statement () (Statements.rollbackTransaction prepare)

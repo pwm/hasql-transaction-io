@@ -5,6 +5,7 @@ module Hasql.Private.Types where
 -- bytestring-tree-builder
 import ByteString.TreeBuilder (Builder)
 
+-- | A PostgreSQL transaction isolation level
 data IsolationLevel
   = ReadCommitted
   | RepeatableRead
@@ -17,6 +18,7 @@ isolationLevelToSQL = \case
   RepeatableRead -> "REPEATABLE READ"
   Serializable -> "SERIALIZABLE"
 
+-- | A PostgreSQL transaction mode
 data Mode = ReadWrite | ReadOnly
   deriving (Show, Eq)
   
@@ -25,6 +27,7 @@ modeToSQL = \case
   ReadWrite -> "READ WRITE"
   ReadOnly -> "READ ONLY"
 
+-- | A PostgreSQL transaction deferrability designation
 data Deferrable = Deferrable | NotDeferrable
   deriving (Show, Eq)
 
