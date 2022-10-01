@@ -58,7 +58,7 @@ statement params stmt = CursorTransactionIO . lift . lift $ TransactionIO.statem
 ignoreFailedTransactionError :: MonadError QueryError m => m () -> m ()
 ignoreFailedTransactionError sess =
   catchError sess $ \qe -> case qe of
-    QueryError _ _ (ResultError (ServerError "25P02" _ _ _)) -> pure ()
+    QueryError _ _ (ResultError (ServerError "25P02" _ _ _ _)) -> pure ()
     _ -> throwError qe
 
 -- | Run a `Statement` using a cursor

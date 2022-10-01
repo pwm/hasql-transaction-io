@@ -1,6 +1,6 @@
 cabal-version: 2.4
 name:          hasql-transaction-io
-version:       0.1.0.0
+version:       0.2.0.0
 synopsis:      Perform IO actions during transactions for Hasql
 homepage:      https://github.com/andremarianiello/hasql-transaction-io
 bug-reports:
@@ -45,7 +45,7 @@ library
     , base                     >=4.14 && <4.17
     , bytestring               >=0.10
     , bytestring-tree-builder  ^>=0.2
-    , hasql                    ^>=1.5
+    , hasql                    ^>=1.6
     , mtl                      ^>=2.2
     , resourcet                ^>=1.2
     , safe-exceptions          ^>=0.1
