@@ -93,5 +93,5 @@ data CondemnTransactionException = CondemnTransactionException
 instance Exception CondemnTransactionException
 
 -- | Throw an internal exception that causes the transaction to be rolled back. If you wish to rollback a transaction with a more useful exception use `throwIO`
-condemn :: TransactionIO ()
+condemn :: TransactionIO a
 condemn = throwIO CondemnTransactionException
