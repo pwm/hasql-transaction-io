@@ -10,7 +10,7 @@ jobs:
   build:
     strategy:
       matrix:
-        ghc: ['8.10.7', 'latest']
+        ghc: ['8.10.7', '9.2.7', 'latest']
         cabal: ['3.6']
         os: [ubuntu-latest]
     name: GHC ${{ matrix.ghc }} on ${{ matrix.os }}

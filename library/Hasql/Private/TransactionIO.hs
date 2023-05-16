@@ -73,8 +73,8 @@ startTransaction isolation mode deferrable prepare = do
 
 endTransaction :: Bool -> Transaction -> ReleaseType -> Session ()
 endTransaction prepare tx = \case
-  ReleaseEarly -> commitTransaction prepare tx
-  ReleaseNormal -> commitTransaction prepare tx
+  ReleaseEarly     -> commitTransaction prepare tx
+  ReleaseNormal    -> commitTransaction prepare tx
   ReleaseException -> rollbackTransaction prepare tx
 
 commitTransaction :: Bool -> Transaction -> Session ()
@@ -92,6 +92,6 @@ data CondemnTransactionException = CondemnTransactionException
 
 instance Exception CondemnTransactionException
 
--- | Throw a `CondemnTransactionException` that causes the transaction to be rolled back. If you wish to rollback a transaction with a more useful exception use `throwIO`
+-- | Throw an internal exception that causes the transaction to be rolled back. If you wish to rollback a transaction with a more useful exception use `throwIO`
 condemn :: TransactionIO ()
 condemn = throwIO CondemnTransactionException
